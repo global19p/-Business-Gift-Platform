@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title> Business & Gift Platform</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="icon" type="image/png" href="Adobe Express - file.png" />
+<style>
+/* ====== General ====== */
+body{margin:0;font-family:'Segoe UI',sans-serif;background:#f0f2f5;}
+h1,h2,h3{margin:0;}
+button,input,textarea{outline:none;transition:all 0.3s;}
+button{cursor:pointer;}
+
+/* ====== Header ====== */
+header{background:linear-gradient(90deg,#ff416c,#ff4b2b);color:white;padding:15px 40px;display:flex;align-items:center;box-shadow:0 3px 8px rgba(0,0,0,0.3);}
+header h1{font-size:22px;font-weight:bold;}
+nav{flex:1; display:flex; justify-content:center; gap:20px;}
+nav button{background:transparent;border:none;color:white;font-size:16px;cursor:pointer;font-weight:600;padding:8px 12px;border-radius:10px;transition:all 0.3s;}
+nav button:hover{background:rgba(255,255,255,0.2);transform:scale(1.1);}
+header div{margin-left:auto;}
+header div button{background:rgba(0,0,0,0.2);border:none;color:white;font-size:16px;font-weight:600;padding:8px 15px;border-radius:12px;transition:all 0.3s;}
+header div button:hover{background:rgba(0,0,0,0.35);transform:scale(1.05);}
+
+/* ====== Hero ====== */
+.hero{height:90vh;background:url('https://images.unsplash.com/photo-1498050108023-c5249f4df085') center/cover no-repeat;display:flex;justify-content:center;align-items:center;color:white;text-align:center;position:relative;}
+.hero::after{content:"";position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.35);}
+.hero div{position:relative;z-index:1;}
+.hero h2{font-size:50px;margin-bottom:20px;text-shadow:2px 2px 6px rgba(0,0,0,0.6);}
+.hero button{padding:15px 30px;font-size:20px;border:none;border-radius:20px;background:linear-gradient(90deg,#1e3c72,#2a5298);color:white;box-shadow:0 4px 12px rgba(0,0,0,0.4);transition:all 0.4s;}
+.hero button:hover{transform:scale(1.08);box-shadow:0 6px 16px rgba(0,0,0,0.5);}
+
+/* ====== Sections ====== */
+section{max-width:1100px;margin:40px auto;padding:30px;background:white;border-radius:20px;box-shadow:0 6px 20px rgba(0,0,0,0.2);}
+section h3{margin-bottom:20px;font-size:28px;color:#333;border-left:8px solid #ff416c;padding-left:12px;}
+input,textarea{width:90%;padding:14px;margin:10px 0;border:1px solid #ccc;border-radius:15px;font-size:16px;}
+input:focus,textarea:focus{border-color:#ff416c;box-shadow:0 0 10px rgba(255,65,108,0.4);}
+button{border-radius:15px;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+button:hover{transform:scale(1.05);box-shadow:0 6px 16px rgba(0,0,0,0.4);}
+.giftResult{margin-top:15px;font-weight:bold;color:#333;font-size:18px;}
+
+/* ====== Tables ====== */
+table{width:100%;border-collapse: collapse;margin-top:15px;}
+th,td{padding:14px;border:1px solid #ddd;text-align:center;font-size:16px;}
+th{background:#ff416c;color:white;}
+
+/* ====== Gift Options ====== */
+.option-btn{display:block;margin:10px auto;padding:14px;width:65%;border:none;border-radius:15px;font-size:16px;box-shadow:0 3px 10px rgba(0,0,0,0.2);}
+.option-btn:hover{transform:scale(1.08);box-shadow:0 6px 16px rgba(0,0,0,0.4);}
+.whatsapp{background:#25D366;color:white;}
+.instagram{background:#E1306C;color:white;}
+.email{background:#0072c6;color:white;}
+
+/* ====== Contact ====== */
+.contact-btn{background:linear-gradient(90deg,#ff416c,#ff4b2b);color:white;padding:16px 28px;border:none;border-radius:18px;cursor:pointer;box-shadow:0 5px 14px rgba(0,0,0,0.3);}
+.contact-btn:hover{transform:scale(1.08);box-shadow:0 7px 18px rgba(0,0,0,0.4);}
+textarea{resize:none;}
+
+/* ====== Responsive ====== */
+@media(max-width:768px){
+header{flex-direction:column;align-items:flex-start;}
+nav{justify-content:flex-start;flex-wrap:wrap;margin-top:10px;}
+.hero h2{font-size:36px;}
+.hero button{font-size:18px;padding:12px 25px;}
+section{padding:20px;margin:20px 10px;}
+input,textarea{width:100%;}
+.option-btn{width:80%;}
+}
+</style>
+</head>
+<body>
+
+<audio id="giftSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<header>
+<h1>🎁 Business & Gift Platform</h1>
+<nav>
+<button onclick="scrollToSection('gift')">Gift Redeem</button>
+<button onclick="scrollToSection('business')">Business IDs</button>
+<button onclick="scrollToSection('employees')">Employee IDs</button>
+<button onclick="scrollToSection('contact')">Contact</button>
+</nav>
+<div>
+<button id="loginBtn">Login</button>
+<button id="logoutBtn" style="display:none;">Logout</button>
+</div>
+</header>
+
+<div class="hero">
+<div>
+<h2>Welcome to the Gift & Business Hub</h2>
+<button onclick="scrollToSection('gift')">Get Started</button>
+</div>
+</div>
+
+<section id="gift">
+<h3>🎁 Redeem Your Gift</h3>
+<form id="giftForm">
+<input type="text" id="name" placeholder="Your Name" required>
+<input type="text" id="giftCode" placeholder="Gift Code" required>
+<input type="text" id="phone" placeholder="Phone Number" required>
+<input type="email" id="email" placeholder="Email" required>
+<button type="submit">Redeem</button>
+</form>
+<p id="giftResult" class="giftResult"></p>
+<div id="deliveryOptions" style="display:none;">
+<p>📩 Choose delivery method:</p>
+<button class="option-btn whatsapp" onclick="deliver('WhatsApp')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+<button class="option-btn instagram" onclick="deliver('Instagram')"><i class="fab fa-instagram"></i> Instagram</button>
+<button class="option-btn email" onclick="deliver('Email')"><i class="fas fa-envelope"></i> Email</button>
+</div>
+</section>
+
+<section id="business">
+<h3>📊 Business IDs</h3>
+<table>
+<thead>
+<tr><th>Business ID</th><th>Owner</th><th>Status</th></tr>
+</thead>
+<tbody id="businessTable">
+<tr><td>BUS-1001</td><td>Ali</td><td>Active</td></tr>
+<tr><td>BUS-1002</td><td>Sara</td><td>Pending</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="employees">
+<h3>👨‍💼 Employee IDs</h3>
+<table>
+<thead>
+<tr><th>Employee ID</th><th>Name</th><th>Email</th></tr>
+</thead>
+<tbody id="employeeTable">
+<tr><td>EMP-001</td><td>Ali</td><td>ali@example.com</td></tr>
+<tr><td>EMP-002</td><td>Sara</td><td>sara@example.com</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="contact">
+<h3>📞 Contact Us</h3>
+<form id="contactForm" action="https://formspree.io/f/xrbaggwv" method="POST">
+<input type="text" name="name" placeholder="Your Name" required>
+<input type="email" name="email" placeholder="Your Email" required>
+<textarea name="message" placeholder="Your Message" rows="4" required></textarea>
+<button type="submit" class="contact-btn">Send Message</button>
+</form>
+</section>
+
+<script>
+// Firebase Initialization
+const firebaseConfig={
+apiKey:"AIzaSyAGq9x3zOZXfqEZ3tMFRuUUTHnuHKNTRgI",
+authDomain:"pixelbuilder2-auth.firebaseapp.com",
+databaseURL:"https://pixelbuilder2-auth.firebaseio.com",
+projectId:"pixelbuilder2-auth",
+storageBucket:"pixelbuilder2-auth.appspot.com",
+messagingSenderId:"123456789",
+appId:"1:123456789:web:abcdef"
+};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.database();
+
+// Gift Codes
+const giftCodes={
+"GIFT50":"10 dirham internet voucher",
+"FREEDEL":"Voucher worth 200 dirhams",
+"BONUS10":"1GB internet credit voucher",
+"FFGKL50":"Voucher up to 100 dirhams online",
+"GYJKE36":"A coupon of up to 400 points in the Visionary store",
+"JHTFV22":"Voucher up to 5 dirhams for the Internet",
+"lokuf48":"No luck, try again.",
+"GTYUV47":"No luck, try again.",
+"GFYTU78":"No luck, try again."
+};
+
+// Elements
+const loginBtn=document.getElementById('loginBtn');
+const logoutBtn=document.getElementById('logoutBtn');
+const giftForm=document.getElementById('giftForm');
+const result=document.getElementById("giftResult");
+const options=document.getElementById("deliveryOptions");
+const giftSound=document.getElementById("giftSound");
+
+// Google Login
+loginBtn.addEventListener('click',()=>{
+const provider=new firebase.auth.GoogleAuthProvider();
+auth.signInWithPopup(provider).then(user=>{
+loginBtn.style.display='none';
+logoutBtn.style.display='block';
+giftForm.style.display='block';
+alert("Welcome "+user.user.displayName);
+});
+});
+
+// Logout
+logoutBtn.addEventListener('click',()=>{
+auth.signOut().then(()=>{
+loginBtn.style.display='block';
+logoutBtn.style.display='none';
+giftForm.style.display='none';
+alert("Logged out");
+});
+});
+
+auth.onAuthStateChanged(user=>{
+if(user){
+loginBtn.style.display='none';
+logoutBtn.style.display='block';
+giftForm.style.display='block';
+}else{
+loginBtn.style.display='block';
+logoutBtn.style.display='none';
+giftForm.style.display='none';
+}
+});
+
+// Gift Redeem
+giftForm.addEventListener("submit",e=>{
+e.preventDefault();
+const code=document.getElementById("giftCode").value.trim();
+const name=document.getElementById("name").value.trim();
+const phone=document.getElementById("phone").value.trim();
+const email=document.getElementById("email").value.trim();
+const reward=giftCodes[code];
+if(reward){
+result.textContent="🎉 "+reward;
+options.style.display= reward.includes("No luck")?"none":"block";
+giftSound.play();
+if(auth.currentUser){
+db.ref('gifts').push({name,phone,email,code,reward,uid:auth.currentUser.uid,time:Date.now()});
+}
+}else{
+result.textContent="❌ Invalid code!";
+options.style.display="none";
+}
+});
+
+// Delivery Options
+function deliver(method){
+const phone=document.getElementById("phone").value.trim();
+const email=document.getElementById("email").value.trim();
+const name=document.getElementById("name").value.trim();
+if(method==="WhatsApp"){
+window.open(`https://wa.me/${phone}?text=Hi ${name}, your gift is ready!`,'_blank');
+}else if(method==="Instagram"){
+window.open(`https://instagram.com/`,'_blank');
+}else{
+window.open(`mailto:${email}?subject=Your Gift&body=Hi ${name}, your gift is ready!`,'_blank');
+}
+}
+
+// Smooth Scroll
+function scrollToSection(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+</script>
+
+</body>
+</html>
